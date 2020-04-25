@@ -4,7 +4,7 @@
 Download and install NodeJS https://nodejs.org/en/download/
 
 ## Git Bash for Windows
-Download and install GitBash for Windows
+Download and install GitBash for Windows https://gitforwindows.org/
 
 ### Install Instructions
 
