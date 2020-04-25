@@ -28,11 +28,11 @@ define([
                     return rp.get({
                         url: baseUrl,
                         qs: qs,
-                        serverName: serverName,
                         rejectUnauthorized: false
                     }).then(function (response) {
                         var json = parser.parse(response).json;
                         json = _.last(json);
+                        json.serverName = serverName;
                         json.qs = qs;
                         json.baseUrl = baseUrl;
                         return json

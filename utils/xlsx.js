@@ -10,7 +10,7 @@ define([
     self.convertTableToWorksheet = function convertTableToWorksheet(table) {
         return {
             ws: XLSX.utils.json_to_sheet(table.table),
-            name: table.serverName + ':' + table.qs.view
+            name: table.serverName + '-' + table.qs.view
         };
     };
 
