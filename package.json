@@ -1,0 +1,33 @@
+{
+  "name": "astro-empires-dl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "bin": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pkg": {
+    "assets": [
+      "**"
+    ]
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "html-table-to-json": "^1.0.0",
+    "jquery": "^3.5.0",
+    "jsdom": "^16.2.2",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "requirejs": "^2.3.6",
+    "tmp": "^0.2.0",
+    "xlsx": "^0.15.6"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  }
+}
