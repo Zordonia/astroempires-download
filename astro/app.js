@@ -19,15 +19,20 @@ define([
         var self = this,
             CONSTANTS = {
                 VIEW: 'view',
-                BASE: '/astroempires'
+                SEE: 'see',
+                BASE: '/astroempires',
+                PAGES: 10
             },
             router = express.Router(),
             requestPromises = [],
-            createRequest = function createRequest(baseUrl, qs, serverName) {
-                function requestFn(persist) {
+            requestAllPages = function requestAllPages(baseUrl, qs, serverName, pages) {
+                var promiseChain = undefined;
+                function request(page, persist) {
+                    var qsLocal = _.clone(qs);
+                    qsLocal[CONSTANTS.SEE] = page;
                     return rp.get({
                         url: baseUrl,
-                        qs: qs,
+                        qs: qsLocal,
                         rejectUnauthorized: false
                     }).then(function (response) {
                         var json = parser.parse(response).json;
@@ -35,19 +40,46 @@ define([
                         json.serverName = serverName;
                         json.qs = qs;
                         json.baseUrl = baseUrl;
-                        return json
+                        return json;
                     }).catch(function (err) {
                         err.qs = qs;
                         err.baseUrl = baseUrl;
                         return err;
                     }).then(function (finalRes) {
-                        if (_.isArray(persist)) {
-                            persist.push(finalRes);
+                        if (persist) {
+                            persist.table = persist.table.concat(finalRes.table);
                         } else {
                             persist = finalRes;
                         }
                         return persist;
                     });
+                }
+                _.forEach(pages, function mapRequestPromises(page) {
+                    if (promiseChain) {
+                        promiseChain = promiseChain.then(function (response) {
+                            return request(page, response);
+                        })
+                    } else {
+                        promiseChain = request(page);
+                    }
+                });
+                return promiseChain;
+            },
+            createRequest = function createRequest(baseUrl, qs, serverName) {
+                function requestFn(persist) {
+                    var paging = _.times(CONSTANTS.PAGES)
+                        .map(function (page) {
+                            return _.toString(page + 1);
+                        });
+                    return requestAllPages(baseUrl, qs, serverName, paging)
+                        .then(function (finalRes) {
+                            if (_.isArray(persist)) {
+                                persist.push(finalRes);
+                            } else {
+                                persist = finalRes;
+                            }
+                            return persist;
+                        });
                 }
                 requestPromises.push(requestFn);
                 return requestFn;
