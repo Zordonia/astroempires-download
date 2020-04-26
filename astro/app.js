@@ -46,7 +46,7 @@ define([
                         err.baseUrl = baseUrl;
                         return err;
                     }).then(function (finalRes) {
-                        if (persist) {
+                        if (persist && persist.table) {
                             persist.table = persist.table.concat(finalRes.table);
                         } else {
                             persist = finalRes;
