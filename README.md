@@ -39,3 +39,7 @@ localhost:3000/astroempires/antares/bases?type=xlsx
 With the application running, you can schedule downloads by running the following command via something like Task Scheduler with windows via Git Bash:
 
 `curl http://localhost:3000/astroempires/antares/all?type=xlsx -JO`
+
+#### Killing Errant Node Processes on Windows
+
+In your git bash terminal run `taskkill //F //IM node.exe` to kill existing node processes if you get messages about the port already being used.
