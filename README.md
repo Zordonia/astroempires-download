@@ -34,6 +34,15 @@ localhost:3000/astroempires/antares/players/levels?type=csv
 localhost:3000/astroempires/antares/guilds/levels?type=json
 localhost:3000/astroempires/antares/bases?type=xlsx
 
+#### Rate Limit Delays
+
+Each request adds a delay of 1 second by default to avoid rate limiting. You can tweak this number by adding a query parameter for `delay` like:
+
+```
+localhost:3000/astroempires/antares/all?type=xlsx&delay=0.5 # This will delay half a second between each astroempires request
+localhost:3000/astroempires/antares/all?type=xlsx&delay=5 # This will delay 5 seconds between each astroempires request
+```
+
 
 ##### Scheduled Downloads
 With the application running, you can schedule downloads by running the following command via something like Task Scheduler with windows via Git Bash:
