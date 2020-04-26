@@ -21,31 +21,45 @@ define([
                 VIEW: 'view',
                 SEE: 'see',
                 BASE: '/astroempires',
-                PAGES: 10
+                PAGES: 10,
+                DELAY_MS: 1 * 1000
+            },
+            delay = function delay (time) {
+                return function (passthrough) {
+                    return new Promise(function(resolve){
+                        console.log('Waiting ' + (time / 1000.0) + ' seconds to avoid rate limit.');
+                        setTimeout(function(){resolve(passthrough);},time);
+                    });
+                };
             },
             router = express.Router(),
             requestPromises = [],
-            requestAllPages = function requestAllPages(baseUrl, qs, serverName, pages) {
+            requestAllPages = function requestAllPages(baseUrl, qs, serverName, pages, options) {
                 var promiseChain = undefined;
                 function request(page, persist) {
                     var qsLocal = _.clone(qs);
                     qsLocal[CONSTANTS.SEE] = page;
+                    console.log('Calling ' + baseUrl + ' for ' + qsLocal[CONSTANTS.VIEW] + ' at page ' + page);
                     return rp.get({
                         url: baseUrl,
                         qs: qsLocal,
                         rejectUnauthorized: false
-                    }).then(function (response) {
+                    })
+                    .then(delay(options.delay))
+                    .then(function (response) {
                         var json = parser.parse(response).json;
                         json = _.last(json);
                         json.serverName = serverName;
                         json.qs = qs;
                         json.baseUrl = baseUrl;
                         return json;
-                    }).catch(function (err) {
+                    })
+                    .catch(function (err) {
                         err.qs = qs;
                         err.baseUrl = baseUrl;
                         return err;
-                    }).then(function (finalRes) {
+                    })
+                    .then(function (finalRes) {
                         if (persist && persist.table) {
                             persist.table = persist.table.concat(finalRes.table);
                         } else {
@@ -66,12 +80,12 @@ define([
                 return promiseChain;
             },
             createRequest = function createRequest(baseUrl, qs, serverName) {
-                function requestFn(persist) {
+                function requestFn(persist, options) {
                     var paging = _.times(CONSTANTS.PAGES)
                         .map(function (page) {
                             return _.toString(page + 1);
                         });
-                    return requestAllPages(baseUrl, qs, serverName, paging)
+                    return requestAllPages(baseUrl, qs, serverName, paging, options)
                         .then(function (finalRes) {
                             if (_.isArray(persist)) {
                                 persist.push(finalRes);
@@ -87,7 +101,10 @@ define([
             craeteViewRouter = function (baseUrl, route, qs, serverName) {
                 var requestFn = createRequest(baseUrl, qs, serverName);
                 router.get(route, (req, res) => {
-                    requestFn()
+                    var options = {
+                        delay: (req.query.delay || CONSTANTS.DELAY) * 1000
+                    };
+                    requestFn(undefined, options)
                         .then(function (response) {
                             expressUtils.convertAndRespond(req, res, response, serverName);
                         });
@@ -117,14 +134,17 @@ define([
                     });
                 });
                 router.get(routePrefix + '/all', (req, res) => {
-                    var promiseChain = undefined;
+                    var promiseChain = undefined,
+                        options = {
+                            delay: (req.query.delay || CONSTANTS.DELAY) * 1000
+                        };
                     _.forEach(requestPromises, function mapRequestPromises(requestFn) {
                         if (promiseChain) {
                             promiseChain = promiseChain.then(function (response) {
-                                return requestFn(response);
+                                return requestFn(response, options);
                             })
                         } else {
-                            promiseChain = requestFn([]);
+                            promiseChain = requestFn([], options);
                         }
                     });
                     promiseChain
