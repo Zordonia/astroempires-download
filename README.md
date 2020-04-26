@@ -1,7 +1,5 @@
 # astroempires-download
 
-These are new changes.
-
 ## NodeJS
 Download and install NodeJS https://nodejs.org/en/download/
 
