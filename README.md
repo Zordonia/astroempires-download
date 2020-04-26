@@ -15,7 +15,7 @@ Download and install GitBash for Windows https://gitforwindows.org/
     - Installing nodemon globally (npm install -g nodemon)
     - Then you can run `nodemon`
     OR
-    - Run from node_modules by running `./node_modules/nodemon/bin/nodemon.js
+    - Run from node_modules by running `./node_modules/nodemon/bin/nodemon.js`
 
 ### Usage
 
